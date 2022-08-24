@@ -665,6 +665,98 @@ matrix power(matrix a, ll x){
 
 
 
+### 无精度分数运算
+
+```cpp
+ll gcd(ll a, ll b) {
+	if (b == 0)return a;
+	return gcd(b, a % b);
+}
+
+ll lcm(ll a, ll b) {
+	return a / gcd(a, b) * b;
+}
+
+struct P { 
+	ll u, d;
+	void make() {
+		ll g = gcd(u, d);
+		u /= g, d /= g;
+	}
+	P operator +(const P& x) const{
+		P z;
+		z.d = lcm(x.d, d);
+		z.u = z.d / d * u + z.d / x.d * x.u;
+		z.make();
+		return z;
+	}
+	P operator -(const P& x) const {
+		P z;
+		z.d = lcm(x.d, d);
+		z.u = z.d / d * u - z.d / x.d * x.u;
+		z.make();
+		return z;
+	}
+	P operator *(const P& x) const {
+		P z;
+		z.u = u * x.u, z.d = d * x.d;
+		z.make();
+		return z;
+	}
+	P operator /(const ll x) const {
+		P z;
+		z.u = u, z.d = d * x;
+		z.make();
+		return z;
+	}
+};
+ll gcd(ll a, ll b) {
+	if (b == 0)return a;
+	return gcd(b, a % b);
+}
+
+ll lcm(ll a, ll b) {
+	return a / gcd(a, b) * b;
+}
+
+struct P { 
+	ll u, d;
+	void make() {
+		ll g = gcd(u, d);
+		u /= g, d /= g;
+	}
+	P operator +(const P& x) const{
+		P z;
+		z.d = lcm(x.d, d);
+		z.u = z.d / d * u + z.d / x.d * x.u;
+		z.make();
+		return z;
+	}
+	P operator -(const P& x) const {
+		P z;
+		z.d = lcm(x.d, d);
+		z.u = z.d / d * u - z.d / x.d * x.u;
+		z.make();
+		return z;
+	}
+	P operator *(const P& x) const {
+		P z;
+		z.u = u * x.u, z.d = d * x.d;
+		z.make();
+		return z;
+	}
+	P operator /(const ll x) const {
+		P z;
+		z.u = u, z.d = d * x;
+		z.make();
+		return z;
+	}
+};
+
+```
+
+
+
 
 
 
@@ -1859,6 +1951,94 @@ $H(s[l,r])=F(r)-F(l-1)*Base^{r-l+1}$
 ![caa10c00eb697d65c433babf1176920b.png](https://images.gxuca.team/images/2022/02/23/caa10c00eb697d65c433babf1176920b.png)
 
 https://www.cnblogs.com/ljxtt/p/13514346.html
+
+
+
+## 数据结构
+
+### 线段树
+
+```cpp
+#include<bits/stdc++.h>
+#define ll long long
+using namespace std;
+const int maxn = 100010;
+ll tree[maxn * 4], s[maxn], lazy[maxn * 4];
+
+void push_up(int p) { tree[p] = tree[p << 1] + tree[p << 1 | 1]; }
+
+void push_down(int p, int lb, int rb) {
+	int mid = (lb + rb) / 2;
+	if (lazy[p]) {
+		ll w = lazy[p];
+		tree[p << 1] += (ll)(mid - lb + 1) * w;
+		lazy[p << 1] += w;
+		tree[p << 1 | 1] += (ll)(rb - (mid + 1) + 1) * w;
+		lazy[p << 1 | 1] += w;
+		lazy[p] = 0;
+	}
+}
+
+void build(int p, int lb, int rb) {
+	lazy[p] = 0;
+	if (lb == rb) {
+		tree[p] = s[lb];
+		return;
+	}
+	int mid = (lb + rb) / 2;
+	build(p << 1, lb, mid);
+	build(p << 1 | 1, mid + 1, rb);
+	push_up(p);
+}
+
+ll query(int p, int lb, int rb, int L, int R) {
+	ll res = 0;
+	if (lb >= L && rb <= R)return tree[p];
+	int mid = (lb + rb) / 2;
+	push_down(p, lb, rb);
+	if (L <= mid) res += query(p << 1, lb, mid, L, R); 
+	if (R > mid)res += query(p << 1 | 1, mid + 1, rb, L, R);
+	return res;
+}
+
+void update(int p, int lb, int rb, int L, int R, ll w) {
+	if (lb >= L && rb <= R) {
+		tree[p] += (ll)(rb - lb + 1) * w;
+		lazy[p] += w;
+		return;
+	}
+	push_down(p, lb, rb);
+	int mid = (lb + rb) / 2;
+	if (L <= mid)update(p << 1, lb, mid, L, R, w);
+	if (R > mid)update(p << 1 | 1, mid + 1, rb, L, R, w);
+	push_up(p);
+}
+
+int n, m;
+
+int main() {
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++)cin >> s[i];
+	build(1, 1, n);
+	while (m--) {
+		int p; cin >> p;
+		if (p == 1) {
+			int x, y;
+			ll k;
+			cin >> x >> y >> k;
+			update(1, 1, n, x, y, k);
+		}
+		else {
+			int x, y; cin >> x >> y;
+			cout << query(1, 1, n, x, y) << "\n";
+		}
+	}
+
+	return 0;
+}
+```
+
+
 
 
 
