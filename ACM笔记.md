@@ -1,5 +1,7 @@
 
 
+## 数学
+
 ### 素数
 
 #### Miller-Rabin判大素数
@@ -1891,6 +1893,138 @@ void sol() {
 
 
 
+### LCA
+
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+#include <queue>
+#include <vector>
+using namespace std;
+
+const int maxn = 10005;
+int parents[maxn][20], depth[maxn];
+int n, from[maxn], root = -1;
+vector<int> G[maxn];
+
+void init()
+{
+    memset(parents, -1, sizeof(parents));
+    memset(from, -1, sizeof(from));
+    memset(depth, -1, sizeof(depth));
+}
+
+void getData()
+{
+    cin >> n;
+    int u, v;
+    for (int i = 1; i < n; ++i) {
+        cin >> u >> v;
+        G[u].push_back(v);
+        parents[v][0] = u;
+        from[v] = 1;
+    }
+    for (int i = 1; i <= n; ++i) {
+        if (from[i] == -1) root = i;
+    }
+}
+
+void getDepth_dfs(int u)
+{
+    int len = G[u].size();
+    for (int i = 0; i < len; ++i) {
+        int v = G[u][i];
+        depth[v] = depth[u] + 1;
+        getDepth_dfs(v);
+    }
+}
+
+void getDepth_bfs(int u)
+{
+    queue<int> Q;
+    Q.push(u);
+    while (!Q.empty()) {
+        int v = Q.front();
+        Q.pop();
+        for (int i = 0; i < G[v].size(); ++i) {
+            depth[G[v][i]] = depth[v] + 1;
+            Q.push(G[v][i]);
+        }
+    }
+}
+
+void getParents()
+{
+    for (int up = 1; (1 << up) <= n; ++up) {
+        for (int i = 1; i <= n; ++i) {
+            parents[i][up] = parents[parents[i][up - 1]][up - 1];
+        }
+    }
+}
+
+int Lca(int u, int v)
+{
+    if (depth[u] < depth[v]) swap(u, v);
+    int i = -1, j;
+    while ((1 << (i + 1)) <= depth[u]) ++i;
+    for (j = i; j >= 0; --j) {
+        if (depth[u] - (1 << j) >= depth[v]) {
+            u = parents[u][j];
+        }
+    }
+    if (u == v) return u;
+    for (j = i; j >= 0; --j) {
+        if (parents[u][j] != parents[v][j]) {
+            u = parents[u][j];
+            v = parents[v][j];
+        }
+    }
+    return parents[u][0];
+}
+
+void questions()
+{
+    int q, u, v;
+    cin >> q;
+    for (int i = 0; i < q; ++i) {
+        cin >> u >> v;
+        int ans = Lca(u, v);
+        cout << ans << endl;
+        //cout << u << " 和 " << v << " 的最近公共祖先(LCA)是: " << ans << endl; 
+    }
+}
+
+int main()
+{
+    init();
+    getData();
+    depth[root] = 1;
+    getDepth_dfs(root);
+    //getDepth_bfs(root);
+    getParents();
+    questions();
+}
+/*
+9
+1 2
+1 3
+1 4
+2 5
+2 6
+3 7
+6 8
+7 9
+5
+1 3
+5 6
+8 9
+8 4
+5 8
+*/
+
+```
+
 
 
 ## 字符串
@@ -1951,6 +2085,60 @@ $H(s[l,r])=F(r)-F(l-1)*Base^{r-l+1}$
 ![caa10c00eb697d65c433babf1176920b.png](https://images.gxuca.team/images/2022/02/23/caa10c00eb697d65c433babf1176920b.png)
 
 https://www.cnblogs.com/ljxtt/p/13514346.html
+
+
+
+### 马拉车
+
+```cpp
+// Created by calabash_boy on 18-9-14.
+#include<bits/stdc++.h>
+using namespace std;
+const int MAX = 2e5+10000;
+char s[MAX];
+struct Manacher{
+    int lc[MAX];
+    char ch[MAX];
+    int N;
+    Manacher(char *s){init(s);manacher();}
+    /* s 1 bas */
+    void init(char *s){
+        int n = strlen(s+1);
+        ch[n*2 +1] = '#';
+        ch[0] = '@';
+        ch[n*2 +2] = '\0';
+        for (int i=n;i>=1;i--){
+            ch[i*2] = s[i];ch[i*2 -1] = '#';
+        }
+        N = 2* n +1;
+    }
+    void manacher(){
+        lc[1]=1;  int k=1;
+        for (int i=2;i<=N;i++){
+            int p = k+lc[k]-1;
+            if (i<=p){
+                lc[i]=min(lc[2*k-i],p-i+1);
+            }else{  lc[i]=1;  }
+            while (ch[i+lc[i]]==ch[i-lc[i]])lc[i]++;
+            if (i+lc[i]>k+lc[k])k=i;
+        }
+    }
+    void debug(){
+        puts(ch);
+        for (int i=1;i<=N;i++){
+            printf("lc[%d]=%d\n",i,lc[i]);
+        }
+    }
+};
+int main(){
+    scanf("%s",s+1);
+    Manacher manacher(s);
+    manacher.debug();
+    return 0;
+}
+```
+
+
 
 
 
