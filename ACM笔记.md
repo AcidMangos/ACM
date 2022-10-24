@@ -619,53 +619,43 @@ void init() {
 #define ll long long
 using namespace std;
 const int N = 100;
-const ll mod = 1e9 + 7;
-
-struct matrix{
+const long long mod = 1000000007;
+struct matrix {
     int n;
     int m;
-    ll num[N][N];
-    void clear(){memset(num, 0, sizeof(num));}
+    ll num[110][110];
+    void clear() {
+        memset(num, 0, sizeof(num));
+    }
+
 };
 
-matrix operator +(matrix a,matrix b)
-{
-    for (int i = 1; i <= a.n;i++)
-        for (int j = 1; j <= a.m;j++)
+matrix operator+(matrix a, matrix b) {
+    for (int i = 1; i <= a.n; i++)
+        for (int j = 1; j <= a.m; j++)
             a.num[i][j] = (a.num[i][j] + b.num[i][j]) % mod;
     return a;
 }
 
-matrix operator *(matrix a, matrix b){
+matrix operator*(matrix a, matrix b) {
     matrix ans;
     ans.clear();
     ans.n = a.n;
     ans.m = b.m;
-    for (int i = 0; i < a.n; i++)
-        for (int j = 0; j < b.m; j++)
-            for (int k = 0; k < a.m; k++)
+    for (int i = 1; i <= a.n; i++)
+        for (int j = 1; j <= b.m; j++)
+            for (int k = 1; k <= a.m; k++)
                 ans.num[i][j] = (ans.num[i][j] + a.num[i][k] * b.num[k][j] % mod) % mod;
     return ans;
 }
 
-bool operator !=(matrix a,matrix b)
-{
-    if(a.n!=b.n || a.m!=b.m)
-        return 1;
-    for (int i = 1; i <= a.n;i++)
-        for (int j = 1; j <= a.m;j++)
-            if(a.num[i][j]!=b.num[i][j])
-                return 1;
-    return 0;
-}
-
-matrix power(matrix a, ll x){
+matrix power(matrix a, ll x) {
     matrix ans;
-    ans.clear();
     ans.n = ans.m = a.n;
-    for (int i = 0; i < a.n; i++)
+    ans.clear();
+    for (int i = 1; i <= a.n; i++)
         ans.num[i][i] = 1;
-    while (x){
+    while (x) {
         if (x & 1)
             ans = ans * a;
         a = a * a;
